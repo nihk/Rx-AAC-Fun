@@ -7,7 +7,12 @@ import kotlinx.android.synthetic.main.item_the_entity.view.*
 
 class TheViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
+    private var entity: TheEntity? = null
+
     fun bind(entity: TheEntity) {
+        this@TheViewHolder.entity = entity
         itemView.itemContent.text = entity.content
     }
+
+    fun getId(): Long? = entity?.id
 }

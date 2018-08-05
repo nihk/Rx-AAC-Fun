@@ -20,4 +20,8 @@ class TheViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteAll() {
         theDatabase.theDao().nuke()
     }
+
+    fun delete(id: Long) {
+        theDatabase.theDao().delete(id)
+    }
 }

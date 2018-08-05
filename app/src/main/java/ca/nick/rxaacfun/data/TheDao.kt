@@ -14,4 +14,7 @@ abstract class TheDao {
 
     @Query("DELETE FROM ${TheEntity.TABLE_NAME}")
     abstract fun nuke()
+
+    @Query("DELETE FROM ${TheEntity.TABLE_NAME} WHERE id = :id")
+    abstract fun delete(id: Long)
 }

@@ -3,7 +3,13 @@ package ca.nick.rxaacfun.ui
 import android.arch.lifecycle.ViewModelProviders
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.helper.ItemTouchHelper
+import android.support.v7.widget.helper.ItemTouchHelper.*
 import ca.nick.rxaacfun.R
+import ca.nick.rxaacfun.data.DeleteAllChange
+import ca.nick.rxaacfun.data.DeleteChange
+import ca.nick.rxaacfun.data.InsertChange
 import ca.nick.rxaacfun.data.TheEntityChange
 import ca.nick.rxaacfun.plus
 import com.jakewharton.rxbinding2.view.clicks
@@ -24,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         recyclerView.adapter = adapter
+        itemTouchHelper.attachToRecyclerView(recyclerView)
 
         viewModel = ViewModelProviders.of(this).get(TheViewModel::class.java)
     }
@@ -36,11 +43,11 @@ class MainActivity : AppCompatActivity() {
             .subscribe(::onEntityChange)
 
         compositeDisposable += addFab.clicks()
-            .map { TheEntityChange.Insert }
+            .map { InsertChange }
             .subscribe(changes)
 
         compositeDisposable += deleteAllFab.clicks()
-            .map { TheEntityChange.DeleteAll }
+            .map { DeleteAllChange }
             .subscribe(changes)
 
         compositeDisposable += adapter.bind(viewModel.entities())
@@ -52,10 +59,26 @@ class MainActivity : AppCompatActivity() {
         compositeDisposable.clear()
     }
 
-    private fun onEntityChange(change: TheEntityChange) {
-        when (change) {
-            is TheEntityChange.Insert -> viewModel.createEntity()
-            is TheEntityChange.DeleteAll -> viewModel.deleteAll()
-        }
+    private fun onEntityChange(change: TheEntityChange) = when (change) {
+        is InsertChange -> viewModel.createEntity()
+        is DeleteAllChange -> viewModel.deleteAll()
+        is DeleteChange -> viewModel.delete(change.id)
     }
+
+    private val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(UP or DOWN, LEFT or RIGHT) {
+
+        override fun onMove(
+            recyclerView: RecyclerView?,
+            source: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            return false
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder?, direction: Int) {
+            (viewHolder as TheViewHolder).getId()?.let {
+                changes.accept(DeleteChange(it))
+            }
+        }
+    })
 }

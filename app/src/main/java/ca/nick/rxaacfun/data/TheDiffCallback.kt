@@ -1,4 +1,4 @@
-package ca.nick.rxaacfun.ui
+package ca.nick.rxaacfun.data
 
 import android.support.v7.util.DiffUtil
 import ca.nick.rxaacfun.data.TheEntity
